@@ -3,83 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Resume Analyzer</title>
+  <title>Smart Resume Analyzer — Upload</title>
+  <meta name="description" content="Upload your resume and get an instant ATS compatibility score, keyword analysis, and improvement suggestions tailored to your target role.">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="scanlines"></div>
-  <div class="wrap">
-    <div class="eyebrow">// Resume Diagnostic Tool</div>
-    <h1>Smart Resume Analyzer</h1>
-    <p class="subtitle">
-      Upload your resume and pick a target role. You'll get a structural score,
-      an ATS keyword match report, and concrete suggestions — the same signals
-      real screening systems check for.
-    </p>
 
-    <div class="panel">
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          {% for message in messages %}
-            <div class="flash">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+  <!-- Top Navigation -->
+  <nav class="topnav">
+    <a href="{{ url_for('index') }}" class="nav-brand">
+      <div class="nav-logo">RA</div>
+      <div>
+        <div class="nav-title">Resume Analyzer</div>
+      </div>
+    </a>
+  </nav>
 
-      <form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data" id="analyzeForm">
-        <div class="field">
-          <label for="role">Target Role</label>
-          <select name="role" id="role" required>
-            {% for role in roles %}
-              <option value="{{ role }}">{{ role }}</option>
-            {% endfor %}
-          </select>
-        </div>
+  <!-- Page Content -->
+  <main class="page" style="max-width: 600px;">
 
-        <div class="field">
-          <label>Resume File</label>
-          <label class="file-drop" id="dropZone">
-            <span class="icon">&#8593;</span>
-            <span id="dropText">Click to choose, or drag a PDF / DOCX here</span>
-            <input type="file" name="resume" id="resumeFile" accept=".pdf,.docx" required>
-            <div class="file-name" id="fileName"></div>
-          </label>
-        </div>
-
-        <button type="submit" class="btn">Run Analysis</button>
-      </form>
-
-      <div class="foot-note">SUPPORTED: .PDF · .DOCX &nbsp;&nbsp;|&nbsp;&nbsp; MAX SIZE: 5MB</div>
+    <div class="page-header">
+      <h1>Analyze Your Resume</h1>
+      <p>Get an instant ATS compatibility score, keyword match report, and actionable suggestions based on your target role.</p>
     </div>
-  </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card">
+      <div class="card-body">
+        <form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data" id="analyzeForm">
+
+          <!-- Role Selection -->
+          <div class="field">
+            <label for="role">Target Job Role</label>
+            <select name="role" id="role" required>
+              {% for role in roles %}
+                <option value="{{ role }}">{{ role }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- File Upload -->
+          <div class="field">
+            <label>Resume File</label>
+            <label class="file-drop" id="dropZone">
+              <div class="upload-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="upload-title" id="dropTitle">Click to upload or drag &amp; drop</div>
+              <div class="upload-hint">Supports <span>.PDF</span> and <span>.DOCX</span> &nbsp;·&nbsp; max 5 MB</div>
+              <div class="file-name-display" id="fileNameDisplay">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span id="fileNameText"></span>
+              </div>
+              <input type="file" name="resume" id="resumeFile" accept=".pdf,.docx" required>
+            </label>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Run Analysis
+          </button>
+
+        </form>
+      </div>
+
+      <div style="padding: 14px 32px; background: #FAFBFC; border-top: 1px solid var(--border-light); border-radius: 0 0 8px 8px;">
+        <p class="form-note" style="margin: 0;">
+          Your resume is processed securely and not shared with third parties.
+        </p>
+      </div>
+    </div>
+
+    <!-- What you'll get -->
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-section">
+        <div class="section-label">What you'll get</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 32px; height: 32px; border-radius: 7px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="var(--accent)">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">Resume Score</div>
+              <div style="font-size: 13px; color: var(--text-muted);">Scored out of 100 across structure, content, and completeness.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 32px; height: 32px; border-radius: 7px; background: var(--success-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="var(--success)">
+                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">ATS Keyword Match</div>
+              <div style="font-size: 13px; color: var(--text-muted);">See which role-specific keywords are present or missing.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 32px; height: 32px; border-radius: 7px; background: var(--warn-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="var(--warn)">
+                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">Smart Suggestions</div>
+              <div style="font-size: 13px; color: var(--text-muted);">Targeted tips to improve your resume for the selected role.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 
   <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('resumeFile');
-    const fileName = document.getElementById('fileName');
-    const dropText = document.getElementById('dropText');
+    const dropZone    = document.getElementById('dropZone');
+    const fileInput   = document.getElementById('resumeFile');
+    const fileDisplay = document.getElementById('fileNameDisplay');
+    const fileText    = document.getElementById('fileNameText');
+    const dropTitle   = document.getElementById('dropTitle');
 
     fileInput.addEventListener('change', () => {
       if (fileInput.files.length) {
-        fileName.style.display = 'block';
-        fileName.textContent = '✓ ' + fileInput.files[0].name;
-        dropText.textContent = 'File ready — click to change';
+        const name = fileInput.files[0].name;
+        fileText.textContent = name;
+        fileDisplay.style.display = 'flex';
+        dropTitle.textContent = 'File selected — click to change';
       }
     });
 
-    ['dragover', 'dragleave', 'drop'].forEach(evt => {
-      dropZone.addEventListener(evt, (e) => {
+    ['dragover','dragleave','drop'].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
         e.preventDefault();
-        if (evt === 'dragover') dropZone.classList.add('dragover');
-        else dropZone.classList.remove('dragover');
+        dropZone.classList.toggle('dragover', evt === 'dragover');
       });
     });
 
-    dropZone.addEventListener('drop', (e) => {
+    dropZone.addEventListener('drop', e => {
       if (e.dataTransfer.files.length) {
         fileInput.files = e.dataTransfer.files;
         fileInput.dispatchEvent(new Event('change'));
       }
+    });
+
+    document.getElementById('analyzeForm').addEventListener('submit', function () {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        Analyzing...
+      `;
     });
   </script>
 </body>

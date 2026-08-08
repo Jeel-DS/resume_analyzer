@@ -4,106 +4,194 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analysis Report — Smart Resume Analyzer</title>
+  <meta name="description" content="View your resume analysis results including ATS score, keyword match, and improvement suggestions.">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="scanlines"></div>
-  <div class="wrap">
-    <div class="eyebrow">// Analysis Report</div>
-    <h1>{{ analysis.filename }}</h1>
-    <p class="subtitle">Target role: {{ analysis.role }} &nbsp;·&nbsp; Generated {{ analysis.created_at }}</p>
 
-    <div class="report-grid">
-      <div class="panel gauge-card">
-        <svg width="150" height="150" viewBox="0 0 150 150">
-          <circle cx="75" cy="75" r="62" fill="none" stroke="#2a3140" stroke-width="12"/>
-          <circle id="resumeRing" cx="75" cy="75" r="62" fill="none" stroke="#f0a83c" stroke-width="12"
-                  stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"
-                  transform="rotate(-90 75 75)"/>
-          <text x="75" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="34" fill="#e9ecf1" font-weight="600">{{ analysis.resume_score }}</text>
-          <text x="75" y="92" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#8b95a7">/ 100</text>
-        </svg>
-        <div class="gauge-label">Resume Score</div>
-        <div class="gauge-value">{{ analysis.score_result.word_count }} words</div>
-      </div>
-
-      <div class="panel gauge-card">
-        <svg width="150" height="150" viewBox="0 0 150 150">
-          <circle cx="75" cy="75" r="62" fill="none" stroke="#2a3140" stroke-width="12"/>
-          <circle id="atsRing" cx="75" cy="75" r="62" fill="none" stroke="#4fd1a5" stroke-width="12"
-                  stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"
-                  transform="rotate(-90 75 75)"/>
-          <text x="75" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="34" fill="#e9ecf1" font-weight="600">{{ analysis.ats_score }}</text>
-          <text x="75" y="92" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#8b95a7">/ 100</text>
-        </svg>
-        <div class="gauge-label">ATS Compatibility</div>
-        <div class="gauge-value">{{ analysis.ats_result.total_keywords }} keywords checked</div>
-      </div>
-    </div>
-
-    <div class="panel" style="margin-bottom:20px;">
-      <div class="section-title">Score Breakdown</div>
-      {% for key, item in analysis.score_result.breakdown.items() %}
-        <div class="breakdown-row">
-          <div>
-            <div class="breakdown-label">{{ key.replace('_', ' ').title() }}</div>
-            <div class="breakdown-detail">{{ item.detail }}</div>
-          </div>
-          <div class="breakdown-points {% if item.points == item.max %}pts-full{% elif item.points == 0 %}pts-zero{% else %}pts-partial{% endif %}">
-            {{ item.points }} / {{ item.max }}
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-    <div class="panel" style="margin-bottom:20px;">
-      <div class="section-title">ATS Keyword Match — {{ analysis.role }}</div>
-      <div style="margin-bottom:16px;">
-        <label style="margin-bottom:6px;">Matched ({{ analysis.ats_result.matched|length }})</label>
-        <div class="chip-row">
-          {% for kw in analysis.ats_result.matched %}
-            <span class="chip chip-matched">{{ kw }}</span>
-          {% else %}
-            <span class="gauge-value">None matched yet</span>
-          {% endfor %}
-        </div>
-      </div>
+  <!-- Top Navigation -->
+  <nav class="topnav">
+    <a href="{{ url_for('index') }}" class="nav-brand">
+      <div class="nav-logo">RA</div>
       <div>
-        <label style="margin-bottom:6px;">Missing ({{ analysis.ats_result.missing|length }})</label>
-        <div class="chip-row">
-          {% for kw in analysis.ats_result.missing %}
-            <span class="chip chip-missing">{{ kw }}</span>
-          {% else %}
-            <span class="gauge-value">None — full coverage!</span>
-          {% endfor %}
+        <div class="nav-title">Resume Analyzer</div>
+      </div>
+    </a>
+  </nav>
+
+  <main class="page">
+
+    <!-- Dashboard Header -->
+    <div class="dash-header">
+      <div>
+        <h1 style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px;">
+          {{ analysis.filename }}
+        </h1>
+        <div class="dash-meta">
+          <span class="badge">{{ analysis.role }}</span>
+          <span class="meta-sep">/</span>
+          <span class="meta-date">{{ analysis.created_at }}</span>
         </div>
       </div>
+      <a href="{{ url_for('index') }}" class="btn btn-ghost">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+        </svg>
+        New Analysis
+      </a>
     </div>
 
-    <div class="panel">
-      <div class="section-title">Smart Suggestions</div>
-      <ul class="suggestion-list">
-        {% for tip in analysis.suggestions %}
-          <li>{{ tip }}</li>
-        {% endfor %}
-      </ul>
+    <!-- Score Cards -->
+    <div class="score-grid">
+
+      <!-- Resume Score -->
+      <div class="score-card">
+        <div class="score-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="#EAF0F8" stroke-width="7"/>
+            <circle id="resumeRing" cx="36" cy="36" r="30" fill="none"
+              stroke="#1A56A0" stroke-width="7"
+              stroke-linecap="round"
+              stroke-dasharray="188.5"
+              stroke-dashoffset="188.5"
+              transform="rotate(-90 36 36)"/>
+          </svg>
+        </div>
+        <div class="score-info">
+          <div class="score-label">Resume Score</div>
+          <div class="score-number">{{ analysis.resume_score }}<span>/100</span></div>
+          <div class="score-sub">{{ analysis.score_result.word_count }} words detected</div>
+        </div>
+      </div>
+
+      <!-- ATS Score -->
+      <div class="score-card">
+        <div class="score-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="#E8F5F0" stroke-width="7"/>
+            <circle id="atsRing" cx="36" cy="36" r="30" fill="none"
+              stroke="#166534" stroke-width="7"
+              stroke-linecap="round"
+              stroke-dasharray="188.5"
+              stroke-dashoffset="188.5"
+              transform="rotate(-90 36 36)"/>
+          </svg>
+        </div>
+        <div class="score-info">
+          <div class="score-label">ATS Compatibility</div>
+          <div class="score-number">{{ analysis.ats_score }}<span>/100</span></div>
+          <div class="score-sub">{{ analysis.ats_result.total_keywords }} keywords checked</div>
+        </div>
+      </div>
+
     </div>
 
-    <a href="{{ url_for('index') }}" class="back-link">&larr; Analyze another resume</a>
-  </div>
+    <div class="stack">
+
+      <!-- Score Breakdown -->
+      <div class="card">
+        <div class="card-section">
+          <div class="section-label">Score Breakdown</div>
+          <div class="breakdown-table">
+            {% for key, item in analysis.score_result.breakdown.items() %}
+              {% set pct = (item.points / item.max * 100) | int %}
+              <div class="breakdown-row">
+                <div class="breakdown-left">
+                  <div class="breakdown-name">{{ key.replace('_', ' ').title() }}</div>
+                  <div class="breakdown-detail">{{ item.detail }}</div>
+                </div>
+                <div class="breakdown-bar-wrap">
+                  <div class="progress-bar">
+                    <div class="progress-fill
+                      {% if item.points == item.max %}fill-full
+                      {% elif item.points == 0 %}fill-zero
+                      {% else %}fill-partial{% endif %}"
+                      style="width: {{ pct }}%">
+                    </div>
+                  </div>
+                </div>
+                <div class="breakdown-score
+                  {% if item.points == item.max %}score-full
+                  {% elif item.points == 0 %}score-zero
+                  {% else %}score-partial{% endif %}">
+                  {{ item.points }}/{{ item.max }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- ATS Keyword Match -->
+      <div class="card">
+        <div class="card-section">
+          <div class="section-label">ATS Keyword Match — {{ analysis.role }}</div>
+
+          <div class="keyword-section">
+            <div class="keyword-heading">
+              Matched
+              <span class="keyword-count">{{ analysis.ats_result.matched | length }}</span>
+            </div>
+            <div class="chip-row">
+              {% for kw in analysis.ats_result.matched %}
+                <span class="chip chip-matched">{{ kw }}</span>
+              {% else %}
+                <span class="chip-empty">No keywords matched yet</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <hr class="divider" style="margin: 16px 0;">
+
+          <div class="keyword-section">
+            <div class="keyword-heading">
+              Missing
+              <span class="keyword-count">{{ analysis.ats_result.missing | length }}</span>
+            </div>
+            <div class="chip-row">
+              {% for kw in analysis.ats_result.missing %}
+                <span class="chip chip-missing">{{ kw }}</span>
+              {% else %}
+                <span class="chip-empty">All keywords found — full coverage!</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="card">
+        <div class="card-section">
+          <div class="section-label">Improvement Suggestions</div>
+          <ul class="suggestion-list">
+            {% for tip in analysis.suggestions %}
+              <li>
+                <div class="suggestion-num">{{ loop.index }}</div>
+                <span>{{ tip }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- end .stack -->
+
+  </main>
 
   <script>
-    function animateRing(id, value) {
-      const circumference = 389.6;
+    function animateRing(id, value, circumference) {
       const offset = circumference - (value / 100) * circumference;
       const el = document.getElementById(id);
       requestAnimationFrame(() => {
-        el.style.transition = 'stroke-dashoffset 1s ease-out';
-        el.style.strokeDashoffset = offset;
+        setTimeout(() => {
+          el.style.transition = 'stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1)';
+          el.style.strokeDashoffset = offset;
+        }, 100);
       });
     }
-    animateRing('resumeRing', {{ analysis.resume_score }});
-    animateRing('atsRing', {{ analysis.ats_score }});
+    animateRing('resumeRing', {{ analysis.resume_score }}, 188.5);
+    animateRing('atsRing',    {{ analysis.ats_score }},    188.5);
   </script>
+
 </body>
 </html>
