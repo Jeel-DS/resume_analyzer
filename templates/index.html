@@ -48,9 +48,40 @@
           <div class="field">
             <label for="role">Target Job Role</label>
             <select name="role" id="role" required>
-              {% for role in roles %}
-                <option value="{{ role }}">{{ role }}</option>
-              {% endfor %}
+              <optgroup label="── Technology">
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Web Developer">Web Developer</option>
+                <option value="AI Engineer">AI Engineer</option>
+                <option value="Cloud Engineer">Cloud Engineer</option>
+                <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+              </optgroup>
+              <optgroup label="── Business &amp; Management">
+                <option value="Business Analyst">Business Analyst</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Product Manager">Product Manager</option>
+              </optgroup>
+              <optgroup label="── Marketing">
+                <option value="Digital Marketer">Digital Marketer</option>
+                <option value="Content Writer">Content Writer</option>
+              </optgroup>
+              <optgroup label="── Finance &amp; Accounting">
+                <option value="Financial Analyst">Financial Analyst</option>
+                <option value="Accountant">Accountant</option>
+              </optgroup>
+              <optgroup label="── Human Resources">
+                <option value="HR Executive">HR Executive</option>
+              </optgroup>
+              <optgroup label="── Design &amp; Creative">
+                <option value="Graphic Designer">Graphic Designer</option>
+                <option value="UI/UX Designer">UI/UX Designer</option>
+              </optgroup>
+              <optgroup label="── Engineering">
+                <option value="Mechanical Engineer">Mechanical Engineer</option>
+                <option value="Civil Engineer">Civil Engineer</option>
+              </optgroup>
+              <optgroup label="── Sales">
+                <option value="Sales Executive">Sales Executive</option>
+              </optgroup>
             </select>
           </div>
 
